@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet" />
+</head>
+<body>
+  <style>
+    .addlinethrough {
+      text-decoration: line-through !important;
+      /* display: none !important; */
+    }
+
+    .completedItemm {
+      /* display: none !important; */ 
+      text-decoration: line-through;
+      opacity: 0.5;
+      transform: scale(0.96);
+    }
+  </style>
+  <div class="h-100 w-full flex items-center justify-center bg-teal-lightest font-sans mt-20">
+    <div class="bg-white rounded shadow p-6 m-4 w-full lg:w-3/4 lg:max-w-lg">
+      <div class="mb-4">
+        <h1 class="text-3xl text-center md:text-4xl text-indigo-600 font-medium mb-2">
+          To do list
+        </h1>
+        <div class="flex mt-4">
+          <input class="shadow appearance-none border rounded w-full py-2 px-3 mr-4 text-grey-darker" name="text"
+            id="text" placeholder="Add Task" />
+          <input type="hidden" id="saveIndex" />
+          <button
+            class="p-2 lg:px-4 md:mx-2 text-center border border-solid border-indigo-600 rounded text-white bg-indigo-600 transition-colors duration-300 mt-1 md:mt-0 md:ml-1"
+            id="add-task-btn">Add</button>
+          <button
+            class="p-2 lg:px-4 md:mx-2 text-center border border-solid border-indigo-600 rounded bg-indigo-600 text-white transition-colors duration-300 mt-1 md:mt-0 md:ml-1"
+            style="display: none" id="save-todo-btn">Edit Todo</button>
+        </div>
+      </div>
+      <div id="listBox">
+      </div>
+      <button onclick="selectAll();"
+        class="p-2 lg:px-4 md:mx-2 text-center border border-solid border-indigo-600 rounded bg-indigo-600 text-white transition-colors duration-300 mt-1 md:mt-0 md:ml-1"
+        id="select-all">Select All</button>
+      <button onclick="deleteAll();"
+        class="p-2 lg:px-4 md:mx-2 text-center border border-solid border-rose-600 rounded bg-rose-700 text-white transition-colors duration-300 mt-1 md:mt-0 md:ml-1"
+        style="background-color: red;" id="select-all">Delete All</button>
+        <button onclick="deleteMulti();"
+        class="p-2 lg:px-4 md:mx-2 text-center border border-solid border-rose-600 rounded bg-rose-700 text-white transition-colors duration-300 mt-1 md:mt-0 md:ml-1"
+        style="background-color: red;" id="select-all">Delete Multi</button>
+    </div>
+   
+      
+  </div>
+  </div>
+  <style>
+    .goaway {
+      display: none;
+    }
+  </style>
+  <script>
+    const text = document.getElementById("text");
+    const addTaskButton = document.getElementById("add-task-btn");
+    const saveTaskButton = document.getElementById("save-todo-btn");
+    const saveTaskButton2 = document.getElementById("save-todo-btn");
+    const listBox = document.getElementById("listBox");
+    const saveInd = document.getElementById("saveIndex");
+   
+    let todoArray = [];
+    let todoArray2 = [];
+    let todoArrayid = [];
+
+
+    // localStorage.setItem('todocompleted', JSON.stringify([]));
+
+    addTaskButton.addEventListener("click", (e) => {
+      // e.preventDefault();
+      let todo = localStorage.getItem("todo");
+      if (todo === null) {
+        todoArray = [];
+      } else {
+        todoArray = JSON.parse(todo);
+      }
+      todoArray.push(text.value);
+      text.value = "";
+      localStorage.setItem("todo", JSON.stringify(todoArray));
+      displayTodo();
+    });
+    function displayTodo() {
+      let todo = localStorage.getItem("todo");
+      let todo2 = localStorage.getItem("todocompleted");
+      console.log(todo)
+      console.log(todo2)
+      if (todo === null) {
+        todoArray = [];
+      } else {
+        todoArray = JSON.parse(todo); 
+        todoArray2 = JSON.parse(todo2);
+      }
+      let htmlCode = "";
+      let htmlCode2 = "";
+ 
+
+      let linethroughvar = '';
+      let checkboxvar = '';
+
+
+
+      todoArray.forEach((list, ind) => {
+
+        if(todoArray2 &&todoArray2.includes(ind.toString()))
+        {
+          linethroughvar = 'line-through';
+          checkboxvar = 'checked'
+        }
+
+        htmlCode += `<div class='flex mb-4 items-center'> 
+          <input type="checkbox" name="checkbox" id="${ind}" class='checked-items' ${checkboxvar}> 
+          <p class='w-full text-grey-darkest hello${ind}' id=${ind} value=${ind} style= "text-decoration: ${linethroughvar}" >${list}</p>
+          <button onclick='checkTodo(this)' class='flex-no-shrink p-2 ml-4 mr-2 border-2 rounded text-white text-grey bg-yellow-400'>Check</button>
+          <button onclick='edit(${ind})' class='flex-no-shrink p-2 ml-4 mr-2 border-2 rounded text-white text-grey bg-green-600'>Edit</button>
+          <button onclick='deleteTodo(${ind})' class='flex-no-shrink p-2 ml-2 border-2 rounded text-white bg-red-500'>Delete</button>
+      </div>`;
+
+      linethroughvar = '';
+      checkboxvar = '';
+
+      });
+
+      
+      
+      // return;
+        // todoArray2.forEach((list, ind) => {
+        //   htmlCode2 += `<div class='flex mb-4 items-center'> 
+        //     <input type="checkbox" name="checkbox" id="${ind}" class='checked-items'> 
+        //     <p style="text-decoration: line-through;" class='w-full text-grey-darkest completedItem hello${ind}' id=${ind} value=${ind} >${list}</p>
+        //     <button onclick='checkTodo(this)' class='flex-no-shrink p-2 ml-4 mr-2 border-2 rounded text-white text-grey bg-yellow-400'>Check</button>
+        //     <button onclick='edit2(${ind})' class='flex-no-shrink p-2 ml-4 mr-2 border-2 rounded text-white text-grey bg-green-600'>Edit</button>
+        //     <button onclick='deleteTodo2(${ind})' class='flex-no-shrink p-2 ml-2 border-2 rounded text-white bg-red-500'>Delete</button>
+        // </div>`;
+
+        // });
+      listBox.innerHTML = htmlCode;
+      listBox.innerHTML += htmlCode2;
+      console.log(listBox.children.length);
+    }
+    displayTodo()
+    function deleteTodo(ind) {
+      console.log(ind)
+      let todo = localStorage.getItem("todo");
+      // let todo2 = localStorage.getItem("todocompleted");
+      todoArray = JSON.parse(todo);
+      // todoArray2 = JSON.parse(todo2);
+      todoArray.splice(ind, 1);
+      // todoArray2.splice(ind, 1);
+      localStorage.setItem("todo", JSON.stringify(todoArray));
+      // localStorage.setItem("todocompleted", JSON.stringify(todoArray2));
+      displayTodo();
+    }
+    function deleteTodo2(ind) {
+      console.log(ind)
+      // let todo = localStorage.getItem("todo");
+      let todo2 = localStorage.getItem("todocompleted");
+      // todoArray = JSON.parse(todo);
+      todoArray2 = JSON.parse(todo2);
+      // todoArray.splice(ind, 1);
+      todoArray2.splice(ind, 1);
+      // localStorage.setItem("todo", JSON.stringify(todoArray));
+      localStorage.setItem("todocompleted", JSON.stringify(todoArray2));
+      displayTodo();
+    }
+    function edit(ind) {
+
+      console.log('value', ind);
+
+
+     
+      
+      let check = document.querySelector(`.hello${ind}`)
+      let checkbox = check.previousElementSibling;
+      
+    
+
+      if(!checkbox.checked)
+      {
+        console.log('inside edit');
+        console.log(saveInd);
+      
+        saveInd.value = ind;
+      let todo = localStorage.getItem("todo");
+      todoArray = JSON.parse(todo);
+      text.value = todoArray[ind];
+      addTaskButton.style.display = "none";
+      saveTaskButton.style.display = "block";
+      }
+      else{
+        console.log('not allowed');
+      }
+    }
+    function edit2(ind) {
+      console.log(ind)
+      saveInd.value = ind;
+      let todo2 = localStorage.getItem("todocompleted");
+      todoArray2 = JSON.parse(todo2);
+      text.value = todoArray2[ind];
+      addTaskButton.style.display = "none";
+      saveTaskButton2.style.display = "block";
+    }
+    // saveTaskButton2.addEventListener("click", () => {
+    //   let todo2 = localStorage.getItem("todocompleted");
+    //   console.log(todo2)
+    //   todoArray2 = JSON.parse(todo2);
+    //   let id = saveInd.value;
+    //   todoArray2[id] = text.value;
+    //   addTaskButton.style.display = "block";
+    //   saveTaskButton2.style.display = "none";
+    //   text.value = "";
+    //   localStorage.setItem("todocompleted", JSON.stringify(todoArray2));
+    //   displayTodo();
+    // });
+    saveTaskButton.addEventListener("click", () => {
+      let todo = localStorage.getItem("todo");
+      console.log(todo)
+      todoArray = JSON.parse(todo);
+      let id = saveInd.value;
+      todoArray[id] = text.value;
+      addTaskButton.style.display = "block";
+      saveTaskButton.style.display = "none";
+      text.value = "";
+      localStorage.setItem("todo", JSON.stringify(todoArray));
+      displayTodo();
+    });
+
+    const checklinethrough = e => {
+
+      console.log('inside checklinethrough function');
+      console.log(e.classList);
+      if(e.classList[e.classList.length-1]!=='addlinethrough')
+      {
+        e.classList.add('addlinethrough');
+      }
+      return e;
+    }
+
+    const checkboxfunction = check => {
+
+      if(check.checked!=true)
+      {
+        check.checked=true;
+            }
+
+            return check; 
+
+    }
+
+    const selectAll = () => {
+      let check = document.querySelectorAll('input[type=checkbox]');
+      let txt = document.querySelectorAll('p');
+      console.log(txt);
+      txt.forEach(e => checklinethrough(e));
+      // txt.forEach(e => e.classList.toggle('addlinethrough'));
+      // check.forEach(check => check.setAttribute('checked', 'checked'));
+
+      check.forEach(check => checkboxfunction(check));
+      var idxarray = [];
+      const checkeditems= document.querySelectorAll('.checked-items:checked').forEach(e => {
+        
+        console.log(e.id);
+       idxarray.push(e.id);
+
+      });
+      localStorage.setItem("todocompleted", JSON.stringify(idxarray));
+      // check.forEach(check => check.checked^=1)
+    };
+    const deleteAll = () => {
+      localStorage.setItem('todo', JSON.stringify([]));
+      localStorage.setItem('todocompleted', JSON.stringify([]));
+      displayTodo();
+    };
+    multichecked = [];
+
+
+
+    function checkTodo(ele) {
+
+      
+      let taskTextEle = ele.previousElementSibling;
+    
+  
+      // console.log(taskTextEle)
+      // console.log(taskTextEle.id)
+      todoArrayid.push(taskTextEle.id)
+      // console.log(todoArrayid)
+      // return; 
+      taskTextEle.classList.toggle('addlinethrough')
+      // taskTextEle.style.textDecoration = 'line-through';
+      let testingme = taskTextEle.previousElementSibling;
+     testingme.checked ^=1;
+      // console.log(taskTextEle.textContent)
+      let checkvalue = taskTextEle.textContent;
+      // console.log(checkvalue);
+
+//******already commented ********
+
+      // testingme.checked = "true"
+      // console.log(testingme.id)
+      // console.log(testingme)
+      // multichecked.push(testingme.id)
+      // console.log(multichecked);
+      // console.log("11")
+      // localStorage.setItem('todocompleted', JSON.stringify(checkvalue));
+
+      // let todo = localStorage.getItem("todo");
+      // todoArray = JSON.parse(todo);
+      // todoArray.splice(ele, 1);
+      // localStorage.setItem("todo", JSON.stringify(todoArray));
+
+// *************************
+
+
+
+// *************** todoarray1 code *******************
+
+      // let todochecked = localStorage.getItem("todocompleted");
+      // console.log(todochecked)
+      // if (todochecked === null) {
+      //   todoArray1 = [];
+      // } else {
+      //   todoArray1 = JSON.parse(todochecked);
+      // }
+      // todoArray1.push(todoArrayid);
+      // // text.value = "";
+      // localStorage.setItem("todocompleted", JSON.stringify(todoArray1));
+
+
+      // **************************************************
+      checked = [];
+      let todochecked = localStorage.getItem("todocompleted");
+       checked = JSON.parse(todochecked)
+      if (todochecked === null) {
+        todoArray1 = [];
+      }
+      else{
+        todoArray1 = JSON.parse(todochecked);
+      }
+
+      if(todoArray1.includes(taskTextEle.id))
+      {
+        const temp = todoArray1.filter(e => {
+          return e!==taskTextEle.id;
+        })
+        todoArray1 = temp;
+        console.log('already included so removing that item from todoarray1');
+      }
+      else
+        todoArray1.push(taskTextEle.id);
+      
+      
+       localStorage.setItem("todocompleted", JSON.stringify(todoArray1));
+       
+
+
+
+
+
+
+
+
+
+
+
+      // if (testingme.checked=='true') {
+      //   console.log("jjjejnekj")
+      // }
+      displayTodo();
+    }
+    //  const  unchceckTodo = () => {
+    //       if (input[name="checkbox"].checked) {
+    //         input[name="checkbox"].checked = "false"
+    //         console.log("this function working")
+    //       }
+    //  }
+    //  unchceckTodo()
+
+
+
+
+    let deleteMulti = () => {
+      // var checkedItems = [];
+      // const checkeditems= document.querySelectorAll('.checked-items:checked').forEach(e => {
+      //   todoArray.splice(e.id,1);
+      //   console.log(todoArray);
+      // });
+      //    localStorage.setItem("todo", JSON.stringify(todoArray));
+
+
+      
+    var idxarray = [];
+      const checkeditems= document.querySelectorAll('.checked-items:checked').forEach(e => {
+        
+        console.log(e.id);
+       idxarray.push(e.id);
+
+      });
+
+      console.log('index arrays', idxarray);
+
+
+      // if(idxarray.includes())
+
+      console.log('todoArray', todoArray);
+
+      const newarray = todoArray.filter((item, id) => !idxarray.includes(id.toString()));
+
+     
+       
+
+      console.log('new array', newarray);
+
+      todoArray = newarray
+      
+      localStorage.setItem("todocompleted", JSON.stringify([]));
+
+         localStorage.setItem("todo", JSON.stringify(todoArray));
+
+      // console.log(multichecked)
+      // let todo = localStorage.getItem("todo");
+      // console.log(todo)
+      // todoArray = JSON.parse(todo);
+      // // displayTodo();
+      // for (todo of multichecked) {
+      //   // localStorage.removeItem(todo);
+      //   // console.log("there",multichecked)
+      //   todoArray.splice(multichecked, 1);
+      //   localStorage.setItem("todo", JSON.stringify(todoArray));
+      //   displayTodo();
+      // }
+      displayTodo();
+    }
+  </script>
+</body>
+</html>
